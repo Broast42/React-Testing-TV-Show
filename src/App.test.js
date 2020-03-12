@@ -1,7 +1,8 @@
 import React from 'react';
 import App from './App'
-import { render, wait, fireEvent } from '@testing-library/react';
+import { render, wait } from '@testing-library/react';
 import {fetchShow as mockFetchShow } from './api/fetchShow';
+import userEvent from  '@testing-library/user-event';
 
 jest.mock("./api/fetchShow");
 
@@ -50,16 +51,20 @@ test("App fetches data and displays title on page", async () => {
 
 test("Season select renders and onclick shows season select options", async () => {
     mockFetchShow.mockResolvedValueOnce(mockData);
-    const { getByText, findAllByRole } = render(<App />);
     
-    getByText(/Fetching data.../i);
-    await wait();
+    const { getByText } = render(<App />)
     
-    fireEvent.click(getByText(/select a season/i));
+    await wait( () => {getByText(/Select a season/i)} );
     
-    findAllByRole(/option/i);
+    const selections = getByText(/Select a season/i);
+    userEvent.click(selections);
+   
+    const selection1 = getByText(/Season 1/i);
+    expect(selection1).toBeInTheDocument();
     
-
+    userEvent.click(selection1);
+    getByText(/Season 1, Episode 1/i);
+   
 });
 
 
